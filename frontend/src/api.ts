@@ -93,6 +93,13 @@ export const api = {
 
   customerCases: (id: string) => req<Case[]>(`/api/customers/${id}/cases`),
 
+  customerMemory: (id: string) =>
+    req<{
+      customer_id: string;
+      turns: { role: string; text: string; at?: string }[];
+      facts: string[];
+    }>(`/api/customers/${id}/memory`),
+
   resetMemory: (id: string) =>
     req<{ status: string }>(`/api/customers/${id}/memory/reset`, {
       method: "POST",

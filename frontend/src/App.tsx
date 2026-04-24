@@ -97,6 +97,33 @@ export default function App() {
       .catch((e) => setError(String(e)));
   }, [selectedId]);
 
+  // Hydrate past conversation from DynamoDB so users see their
+  // prior chat when they sign back in. Runs once per selected customer.
+  useEffect(() => {
+    if (!selectedId) return;
+    setMessagesByCustomer((prev) => {
+      if (prev[selectedId]) return prev; // already loaded / in-session
+      api
+        .customerMemory(selectedId)
+        .then((mem) => {
+          const history: ChatMessage[] = (mem.turns ?? []).map((t) => ({
+            role: t.role === "customer" ? "user" : "assistant",
+            content: t.text,
+          }));
+          if (history.length > 0) {
+            setMessagesByCustomer((p) => ({
+              ...p,
+              [selectedId]: p[selectedId] ?? history,
+            }));
+          }
+        })
+        .catch(() => {
+          /* non-fatal — just show empty chat */
+        });
+      return prev;
+    });
+  }, [selectedId]);
+
   const handleSelect = useCallback((id: string) => {
     cancelSpeech();
     setSelectedId(id);
