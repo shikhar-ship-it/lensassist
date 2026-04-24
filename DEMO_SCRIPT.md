@@ -82,6 +82,6 @@ Listen to Kajal speak the Hindi reply.
 
 ## Filename when you upload
 
-`H2_<YourEmpID>_2_Demo.mp4`
+`H2_QD_83_2_Demo.mp4`
 
 Upload to the shared Drive folder mentioned in the submission email. Make sure link is set to "Anyone with link can view".
