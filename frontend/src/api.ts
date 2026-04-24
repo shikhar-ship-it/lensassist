@@ -5,7 +5,7 @@ import type {
   NewCustomerPayload,
   ToolCall,
 } from "./types";
-import { loadAuth } from "./auth";
+import { clearAuth, loadAuth } from "./auth";
 
 function authHeader(): Record<string, string> {
   const a = loadAuth();
@@ -36,6 +36,13 @@ async function req<T>(path: string, init?: RequestInit): Promise<T> {
       ...(init?.headers ?? {}),
     },
   });
+  if (res.status === 401 && !path.startsWith("/api/auth/")) {
+    // Session expired or invalid — drop the stale token and force a re-login.
+    clearAuth();
+    // Full page reload kicks us back to the login screen cleanly.
+    window.location.reload();
+    throw new Error("Session expired — please sign in again");
+  }
   if (!res.ok) {
     const text = await res.text();
     throw new Error(`${res.status} ${res.statusText}: ${text}`);
@@ -121,6 +128,11 @@ export const api = {
       headers: { "Content-Type": "application/json", ...authHeader() },
       body: JSON.stringify({ customer_id, message }),
     });
+    if (res.status === 401) {
+      clearAuth();
+      window.location.reload();
+      return;
+    }
     if (!res.ok || !res.body) {
       handlers.onError(`HTTP ${res.status}`);
       return;
