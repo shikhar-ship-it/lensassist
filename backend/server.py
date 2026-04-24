@@ -391,3 +391,29 @@ def tts(req: TTSRequest) -> Response:
         media_type="audio/mpeg",
         headers={"Cache-Control": "no-cache"},
     )
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Static frontend — served only when the React build exists (Docker / prod).
+# In local dev the frontend is served by Vite on :5173 instead.
+# ──────────────────────────────────────────────────────────────────────────
+FRONTEND_DIST = Path(__file__).resolve().parent.parent / "frontend" / "dist"
+if FRONTEND_DIST.is_dir():
+    from fastapi.responses import FileResponse
+    from fastapi.staticfiles import StaticFiles
+
+    app.mount(
+        "/assets",
+        StaticFiles(directory=FRONTEND_DIST / "assets"),
+        name="static-assets",
+    )
+
+    @app.get("/{full_path:path}")
+    def spa_fallback(full_path: str) -> FileResponse:
+        # Let API routes 404 normally; only catch frontend routes.
+        if full_path.startswith("api/"):
+            raise HTTPException(status_code=404)
+        target = FRONTEND_DIST / full_path
+        if target.is_file():
+            return FileResponse(target)
+        return FileResponse(FRONTEND_DIST / "index.html")
