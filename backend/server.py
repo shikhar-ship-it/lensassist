@@ -112,17 +112,23 @@ _polly_client = None
 
 
 def _get_polly():
+    """Return a Polly client if boto3 can find AWS credentials anywhere in its
+    credential chain (env vars → IAM instance role via IMDS → shared config)."""
     global _polly_client
     if _polly_client is None:
-        if not (
-            os.environ.get("AWS_ACCESS_KEY_ID")
-            and os.environ.get("AWS_SECRET_ACCESS_KEY")
-        ):
+        try:
+            client = boto3.client(
+                "polly",
+                region_name=os.environ.get("AWS_REGION", "us-east-1"),
+            )
+            # Force a lightweight credential resolution — if no creds are
+            # findable, get_frozen_credentials() returns None.
+            creds = client._request_signer._credentials
+            if creds is None or creds.get_frozen_credentials().access_key is None:
+                return None
+            _polly_client = client
+        except Exception:
             return None
-        _polly_client = boto3.client(
-            "polly",
-            region_name=os.environ.get("AWS_REGION", "us-east-1"),
-        )
     return _polly_client
 
 
