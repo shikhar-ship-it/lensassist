@@ -1,0 +1,397 @@
+{
+  "SF-7001": {
+    "case_id": "SF-7001",
+    "customer_id": "C1001",
+    "order_id": "ORD-88201",
+    "subject": "Blu-cut coating peeling after 3 months",
+    "status": "Escalated",
+    "priority": "Medium",
+    "created": "2026-04-15T10:20:00",
+    "last_update": "2026-04-23T12:34:25.993203",
+    "channel": "App",
+    "product": "Vincent Chase Air VC E14020 | Blu-Cut Lens",
+    "description": "Customer reports blu-cut coating has started peeling at the edges of both lenses. Purchased 3 months ago.",
+    "messages": [
+      {
+        "role": "agent_draft",
+        "text": "Hi Priya! \ud83d\udc4b\n\nSorry for the delay on your blu-cut coating peeling issue (Case SF-7001). This shouldn't happen within 3 months.\n\nI'd like to arrange a free replacement for your Vincent Chase glasses. Can you share your preferred store location or should we schedule a home pickup?",
+        "at": "2026-04-23T11:20:59.762679"
+      },
+      {
+        "role": "system",
+        "text": "Customer opted for home pickup. Escalated to ops team to arrange courier collection from Mumbai address and lens replacement under warranty.",
+        "at": "2026-04-23T12:34:25.993203"
+      }
+    ]
+  },
+  "SF-7002": {
+    "case_id": "SF-7002",
+    "customer_id": "C1002",
+    "order_id": "ORD-88455",
+    "subject": "Order not delivered, 8 days past EDD",
+    "status": "Escalated",
+    "priority": "High",
+    "created": "2026-04-20T14:00:00",
+    "last_update": "2026-04-23T12:07:37.194375",
+    "channel": "WhatsApp",
+    "product": "John Jacobs JJ 4082 | Progressive Lens",
+    "description": "Order promised by April 12, still not delivered. Tracking shows stuck at Bengaluru hub.",
+    "messages": [
+      {
+        "role": "agent_draft",
+        "text": "Hi Rahul! \ud83d\udc4b\n\nSorry your John Jacobs frames (ORD-88455) are delayed at our Bengaluru hub. I know you've been waiting since April 12.\n\nLet me personally escalate this today and get you a confirmed delivery date by EOD. Would that work?\n\n- Lenskart Care Team",
+        "at": "2026-04-23T11:21:04.145534"
+      },
+      {
+        "role": "system",
+        "text": "Order stuck at Bengaluru hub for 8 days past EDD. Escalated to ops for priority delivery + Rs 100 wallet credit as per delay policy.",
+        "at": "2026-04-23T12:07:37.194375"
+      }
+    ]
+  },
+  "SF-7003": {
+    "case_id": "SF-7003",
+    "customer_id": "C1003",
+    "order_id": "ORD-88702",
+    "subject": "Wrong power in right lens",
+    "status": "Open",
+    "priority": "High",
+    "created": "2026-04-22T09:15:00",
+    "last_update": "2026-04-23T11:21:08.254079",
+    "channel": "App",
+    "product": "Lenskart Air LA E13097 | Single Vision",
+    "description": "Customer complains of headache, blurry vision in right eye since receiving glasses. Rx says -4.50, worried wrong power dispensed.",
+    "messages": [
+      {
+        "role": "agent_draft",
+        "text": "Hi Anjali! \ud83d\udc4b\n\nSorry for the delay on your case SF-7003 regarding the power issue in your right lens. We completely understand your concern about the headaches and blurry vision.\n\nCan we arrange a free home eye check-up today or tomorrow to verify and resolve this immediately? \n\n- Team Lenskart",
+        "at": "2026-04-23T11:21:08.254033"
+      }
+    ]
+  },
+  "SF-7004": {
+    "case_id": "SF-7004",
+    "customer_id": "C1004",
+    "order_id": "ORD-88812",
+    "subject": "How to claim warranty in Dubai",
+    "status": "Open",
+    "priority": "Low",
+    "created": "2026-04-21T16:40:00",
+    "last_update": "2026-04-23T11:21:13.301176",
+    "channel": "Email",
+    "product": "Ray-Ban RB2140 | Polarized",
+    "description": "Frame hinge broken within 4 months. Customer in Dubai, asking about warranty claim process.",
+    "messages": [
+      {
+        "role": "agent_draft",
+        "text": "Hi Mohammed! \ud83d\udc4b\n\nSorry for the delay on your Ray-Ban warranty case (SF-7004). Since your frame hinge broke within warranty period, I can help you process this right away.\n\nCould you share a quick photo of the damaged hinge? I'll fast-track your replacement immediately.",
+        "at": "2026-04-23T11:21:13.301160"
+      }
+    ]
+  },
+  "SF-6988": {
+    "case_id": "SF-6988",
+    "customer_id": "C1001",
+    "order_id": "ORD-87990",
+    "subject": "Progressive lens adaptation issue",
+    "status": "Resolved",
+    "priority": "Medium",
+    "created": "2026-03-18T11:00:00",
+    "last_update": "2026-03-25T18:20:00",
+    "channel": "App",
+    "product": "Vincent Chase | Progressive Lens",
+    "description": "Customer unable to adapt to first progressive lens. Switched to single-vision under 30-day guarantee.",
+    "messages": [
+      {
+        "role": "agent",
+        "text": "Switched to single-vision at no cost under 30-day progressive adaptation guarantee. Refund of upgrade charge processed."
+      }
+    ]
+  },
+  "SF-7005": {
+    "case_id": "SF-7005",
+    "customer_id": "C1005",
+    "order_id": "ORD-88920",
+    "subject": "Frame arrived with visible scratches",
+    "status": "Open",
+    "priority": "High",
+    "created": "2026-04-22T18:30:00",
+    "last_update": "2026-04-22T18:30:00",
+    "channel": "App",
+    "product": "Carrera 8867 | Blue-Cut Lens",
+    "description": "Frame arrived with two visible scratches on left temple arm. Clearly damaged in transit or QC failed.",
+    "messages": []
+  },
+  "SF-7006": {
+    "case_id": "SF-7006",
+    "customer_id": "C1006",
+    "order_id": "ORD-88955",
+    "subject": "Refund not received after 12 days",
+    "status": "Escalated",
+    "priority": "High",
+    "created": "2026-04-18T11:00:00",
+    "last_update": "2026-04-23T12:24:38.840635",
+    "channel": "Email",
+    "product": "Vincent Chase VC E12234 | Single Vision",
+    "description": "Returned frame on April 10, refund of Rs 2,799 still not credited to HDFC card. Return QC was approved.",
+    "messages": [
+      {
+        "role": "system",
+        "text": "Refund delayed beyond 7 business days after QC approval. Escalated to payments team for immediate processing to HDFC card ending in customer's account.",
+        "at": "2026-04-23T12:24:38.840635"
+      }
+    ]
+  },
+  "SF-7007": {
+    "case_id": "SF-7007",
+    "customer_id": "C1007",
+    "order_id": "ORD-89010",
+    "subject": "Home eye test appointment cancelled twice",
+    "status": "Escalated",
+    "priority": "Medium",
+    "created": "2026-04-20T09:30:00",
+    "last_update": "2026-04-23T12:24:51.021543",
+    "channel": "WhatsApp",
+    "product": "Service: Home Eye Test",
+    "description": "Home eye test scheduled April 18, cancelled by optometrist last minute. Rescheduled for April 21, cancelled again.",
+    "messages": [
+      {
+        "role": "system",
+        "text": "Gold member, home eye test cancelled twice. Escalated to ops for priority scheduling with guaranteed slot within 24 hrs.",
+        "at": "2026-04-23T12:24:51.021543"
+      }
+    ]
+  },
+  "SF-7008": {
+    "case_id": "SF-7008",
+    "customer_id": "C1008",
+    "order_id": "ORD-89045",
+    "subject": "Progressive lens adaptation issue",
+    "status": "Open",
+    "priority": "Medium",
+    "created": "2026-04-16T14:00:00",
+    "last_update": "2026-04-21T10:00:00",
+    "channel": "App",
+    "product": "John Jacobs JJ 4501 | Progressive Lens",
+    "description": "High-power progressive lens, customer unable to adapt after 10 days. Reports dizziness and eye strain.",
+    "messages": []
+  },
+  "SF-7009": {
+    "case_id": "SF-7009",
+    "customer_id": "C1009",
+    "order_id": "ORD-89100",
+    "subject": "Contact lens wrong power delivered",
+    "status": "Open",
+    "priority": "High",
+    "created": "2026-04-22T08:00:00",
+    "last_update": "2026-04-22T08:00:00",
+    "channel": "App",
+    "product": "Aqualens HD Monthly | Contact Lens",
+    "description": "Ordered +2.00 and +2.25 power contact lenses. Received box has +1.75 and +1.50 printed. Unopened.",
+    "messages": []
+  },
+  "SF-7010": {
+    "case_id": "SF-7010",
+    "customer_id": "C1010",
+    "order_id": "ORD-89155",
+    "subject": "EMI payment deducted twice",
+    "status": "Open",
+    "priority": "High",
+    "created": "2026-04-21T19:00:00",
+    "last_update": "2026-04-22T11:00:00",
+    "channel": "App",
+    "product": "Vincent Chase Titan VC T8090 | Photochromic",
+    "description": "EMI of Rs 1,067 for first month was auto-debited twice on April 20 via Bajaj Finserv. Two SMS confirmations received.",
+    "messages": []
+  },
+  "SF-7011": {
+    "case_id": "SF-7011",
+    "customer_id": "C1011",
+    "order_id": "ORD-89200",
+    "subject": "Gold membership auto-renewed without notice",
+    "status": "Escalated",
+    "priority": "Low",
+    "created": "2026-04-23T08:15:00",
+    "last_update": "2026-04-23T19:04:56.417582",
+    "channel": "Email",
+    "product": "Service: Gold Membership",
+    "description": "Gold membership of Rs 600 auto-deducted from UPI on April 22. Customer says he didn't want to renew.",
+    "messages": [
+      {
+        "role": "system",
+        "text": "Customer confirmed refund request for unwanted auto-renewal (Rs 600). Also requested membership cancellation to prevent future auto-renewal. Escalating to billing team for full refund processing and membership termination.",
+        "at": "2026-04-23T19:04:56.417582"
+      }
+    ]
+  },
+  "SF-7012": {
+    "case_id": "SF-7012",
+    "customer_id": "C1012",
+    "order_id": "ORD-89240",
+    "subject": "Want to exchange frame for different style",
+    "status": "Open",
+    "priority": "Low",
+    "created": "2026-04-22T13:00:00",
+    "last_update": "2026-04-22T13:00:00",
+    "channel": "App",
+    "product": "John Jacobs JJ 4455 | Single Vision",
+    "description": "Received frame does not suit face shape. Wants to exchange within 14-day window for a Vincent Chase round style.",
+    "messages": []
+  },
+  "SF-7013": {
+    "case_id": "SF-7013",
+    "customer_id": "C1013",
+    "order_id": "ORD-89280",
+    "subject": "First order \u2014 can't login to app to track",
+    "status": "Open",
+    "priority": "Medium",
+    "created": "2026-04-22T20:30:00",
+    "last_update": "2026-04-22T20:30:00",
+    "channel": "WhatsApp",
+    "product": "Lenskart Air LA E12001 | Zero Power",
+    "description": "New customer, first order. Getting 'invalid OTP' error repeatedly on mobile app login. Order was placed as guest.",
+    "messages": []
+  },
+  "SF-7014": {
+    "case_id": "SF-7014",
+    "customer_id": "C1014",
+    "order_id": "ORD-89325",
+    "subject": "Price dropped after I ordered, want difference",
+    "status": "Open",
+    "priority": "Low",
+    "created": "2026-04-23T10:00:00",
+    "last_update": "2026-04-23T10:00:00",
+    "channel": "Email",
+    "product": "Vincent Chase VC E11095 | Single Vision",
+    "description": "Ordered on April 18 at Rs 3,499. Today same frame showing Rs 2,799 in 'Summer Sale'. Requesting Rs 700 refund.",
+    "messages": []
+  },
+  "SF-7015": {
+    "case_id": "SF-7015",
+    "customer_id": "C1015",
+    "order_id": "ORD-89360",
+    "subject": "International shipping stuck at Singapore customs",
+    "status": "Escalated",
+    "priority": "High",
+    "created": "2026-04-19T07:00:00",
+    "last_update": "2026-04-23T12:27:36.566561",
+    "channel": "Email",
+    "product": "Ray-Ban RB3025 Aviator | Progressive Lens",
+    "description": "International order to Singapore stuck at customs since April 16. Tracking shows 'pending duty clearance'.",
+    "messages": [
+      {
+        "role": "system",
+        "text": "Order ORD-89360 held at Singapore customs for 7 days. Customer has not received clearance notice. Escalated to international ops team to coordinate with courier and customs broker for expedited release.",
+        "at": "2026-04-23T12:27:36.566561"
+      }
+    ]
+  },
+  "SF-7016": {
+    "case_id": "SF-7016",
+    "customer_id": "C1016",
+    "order_id": "ORD-89410",
+    "subject": "Asking if lens can be replaced in Bangkok",
+    "status": "Open",
+    "priority": "Low",
+    "created": "2026-04-21T11:45:00",
+    "last_update": "2026-04-21T11:45:00",
+    "channel": "App",
+    "product": "Lenskart Hustlr LH E13050 | Single Vision",
+    "description": "Customer visiting Bangkok for work, wants to know if lens can be replaced at any local Lenskart-affiliated store.",
+    "messages": []
+  },
+  "SF-7017": {
+    "case_id": "SF-7017",
+    "customer_id": "C1017",
+    "order_id": "ORD-89440",
+    "subject": "Prescription unclear \u2014 which lens index recommended",
+    "status": "Open",
+    "priority": "Medium",
+    "created": "2026-04-22T15:20:00",
+    "last_update": "2026-04-22T15:20:00",
+    "channel": "WhatsApp",
+    "product": "Consultation: Pre-purchase",
+    "description": "Customer has -2.00 SPH with -1.75 cyl. Asking whether 1.6 or 1.67 lens index is right. Budget Rs 5000.",
+    "messages": []
+  },
+  "SF-7018": {
+    "case_id": "SF-7018",
+    "customer_id": "C1001",
+    "order_id": "ORD-89500",
+    "subject": "Want to add sister as Gold family member",
+    "status": "Open",
+    "priority": "Low",
+    "created": "2026-04-23T09:00:00",
+    "last_update": "2026-04-23T09:00:00",
+    "channel": "App",
+    "product": "Service: Gold Membership add-on",
+    "description": "Gold member wants to add her sister under the family add-on at Rs 200. Asking process and whether sister's future orders apply Gold pricing.",
+    "messages": []
+  },
+  "SF-7019": {
+    "case_id": "SF-7019",
+    "customer_id": "C1005",
+    "order_id": "ORD-89520",
+    "subject": "Delivered to wrong address",
+    "status": "Open",
+    "priority": "High",
+    "created": "2026-04-22T17:00:00",
+    "last_update": "2026-04-23T09:30:00",
+    "channel": "App",
+    "product": "Vincent Chase Polarized VC E15001 | Sunglasses",
+    "description": "Package marked delivered on April 22 but customer didn't receive it. Delivery photo shows a different apartment building.",
+    "messages": []
+  },
+  "SF-7020": {
+    "case_id": "SF-7020",
+    "customer_id": "C1003",
+    "order_id": "ORD-89580",
+    "subject": "Second pair 50% off not applied at checkout",
+    "status": "Open",
+    "priority": "Medium",
+    "created": "2026-04-23T11:00:00",
+    "last_update": "2026-04-23T11:00:00",
+    "channel": "App",
+    "product": "Vincent Chase VC E15120 | Single Vision (2nd pair)",
+    "description": "Gold member eligible for flat 50% off on 2nd pair. Checkout charged full price. Wants refund of the differential.",
+    "messages": []
+  },
+  "SF-6989": {
+    "case_id": "SF-6989",
+    "customer_id": "C1011",
+    "order_id": "ORD-88100",
+    "subject": "Lens replacement after Rx change",
+    "status": "Resolved",
+    "priority": "Low",
+    "created": "2026-02-15T14:00:00",
+    "last_update": "2026-02-22T16:30:00",
+    "channel": "Store Walk-in",
+    "product": "John Jacobs | High-index 1.67",
+    "description": "Customer's Rx changed within 6 months. Free lens redo availed under Gold benefit.",
+    "messages": [
+      {
+        "role": "agent",
+        "text": "Free lens redo processed under Gold 6-month Rx-change benefit."
+      }
+    ]
+  },
+  "SF-6990": {
+    "case_id": "SF-6990",
+    "customer_id": "C1009",
+    "order_id": "ORD-88150",
+    "subject": "Warranty claim \u2014 frame hinge snapped",
+    "status": "Resolved",
+    "priority": "Medium",
+    "created": "2026-03-02T10:00:00",
+    "last_update": "2026-03-11T12:00:00",
+    "channel": "Store Walk-in",
+    "product": "Carrera 5544 | Single Vision",
+    "description": "Frame hinge snapped within 5 months, manufacturing defect confirmed by QC. Replacement frame issued.",
+    "messages": [
+      {
+        "role": "agent",
+        "text": "Full replacement issued under 1-year frame warranty."
+      }
+    ]
+  }
+}

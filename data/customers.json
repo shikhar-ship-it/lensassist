@@ -1,0 +1,287 @@
+{
+  "C1001": {
+    "customer_id": "C1001",
+    "name": "Priya Sharma",
+    "phone": "+91-98765-43210",
+    "email": "priya.s@example.com",
+    "city": "Mumbai",
+    "gold_member": true,
+    "lifetime_value": 28400,
+    "preferred_language": "English",
+    "last_rx": {
+      "right_sph": "-2.25",
+      "left_sph": "-2.00",
+      "date": "2026-01-15"
+    }
+  },
+  "C1002": {
+    "customer_id": "C1002",
+    "name": "Rahul Verma",
+    "phone": "+91-90000-11111",
+    "email": "rahul.v@example.com",
+    "city": "Bengaluru",
+    "gold_member": false,
+    "lifetime_value": 6200,
+    "preferred_language": "English",
+    "last_rx": {
+      "right_sph": "-1.00",
+      "left_sph": "-1.25",
+      "date": "2025-09-02"
+    }
+  },
+  "C1003": {
+    "customer_id": "C1003",
+    "name": "Anjali Nair",
+    "phone": "+91-99887-76655",
+    "email": "anjali.n@example.com",
+    "city": "Kochi",
+    "gold_member": true,
+    "lifetime_value": 45200,
+    "preferred_language": "English",
+    "last_rx": {
+      "right_sph": "-4.50",
+      "left_sph": "-4.25",
+      "date": "2026-02-20"
+    }
+  },
+  "C1004": {
+    "customer_id": "C1004",
+    "name": "Mohammed Faisal",
+    "phone": "+971-50-1234567",
+    "email": "m.faisal@example.ae",
+    "city": "Dubai",
+    "gold_member": false,
+    "lifetime_value": 3800,
+    "preferred_language": "English",
+    "last_rx": {
+      "right_sph": "-0.75",
+      "left_sph": "-0.75",
+      "date": "2026-03-10"
+    }
+  },
+  "C1005": {
+    "customer_id": "C1005",
+    "name": "Arjun Kapoor",
+    "phone": "+91-98111-22334",
+    "email": "arjun.k@example.com",
+    "city": "Delhi",
+    "gold_member": true,
+    "lifetime_value": 62000,
+    "preferred_language": "Hindi",
+    "last_rx": {
+      "right_sph": "-3.50",
+      "left_sph": "-3.75",
+      "date": "2026-03-28"
+    }
+  },
+  "C1006": {
+    "customer_id": "C1006",
+    "name": "Meera Iyer",
+    "phone": "+91-93456-78901",
+    "email": "meera.iyer@example.com",
+    "city": "Chennai",
+    "gold_member": false,
+    "lifetime_value": 8900,
+    "preferred_language": "English",
+    "last_rx": {
+      "right_sph": "-0.50",
+      "left_sph": "-0.25",
+      "date": "2026-02-05"
+    }
+  },
+  "C1007": {
+    "customer_id": "C1007",
+    "name": "Vikram Singh",
+    "phone": "+91-87654-32109",
+    "email": "vikram.s@example.com",
+    "city": "Jaipur",
+    "gold_member": true,
+    "lifetime_value": 18500,
+    "preferred_language": "Hindi",
+    "last_rx": {
+      "right_sph": "-1.75",
+      "left_sph": "-1.50",
+      "date": "2026-04-10"
+    }
+  },
+  "C1008": {
+    "customer_id": "C1008",
+    "name": "Sneha Patel",
+    "phone": "+91-99000-55443",
+    "email": "sneha.p@example.com",
+    "city": "Ahmedabad",
+    "gold_member": false,
+    "lifetime_value": 4500,
+    "preferred_language": "English",
+    "last_rx": {
+      "right_sph": "-5.25",
+      "left_sph": "-5.00",
+      "date": "2026-01-22"
+    }
+  },
+  "C1009": {
+    "customer_id": "C1009",
+    "name": "Ravi Krishnan",
+    "phone": "+91-95555-12345",
+    "email": "ravi.k@example.com",
+    "city": "Hyderabad",
+    "gold_member": true,
+    "lifetime_value": 31200,
+    "preferred_language": "English",
+    "last_rx": {
+      "right_sph": "+2.00",
+      "left_sph": "+2.25",
+      "date": "2026-03-15"
+    }
+  },
+  "C1010": {
+    "customer_id": "C1010",
+    "name": "Kavya Reddy",
+    "phone": "+91-97777-88899",
+    "email": "kavya.r@example.com",
+    "city": "Bengaluru",
+    "gold_member": false,
+    "lifetime_value": 2100,
+    "preferred_language": "English",
+    "last_rx": {
+      "right_sph": "-2.75",
+      "left_sph": "-2.50",
+      "date": "2026-04-18"
+    }
+  },
+  "C1011": {
+    "customer_id": "C1011",
+    "name": "Amit Gupta",
+    "phone": "+91-91234-56789",
+    "email": "amit.gupta@example.com",
+    "city": "Kolkata",
+    "gold_member": true,
+    "lifetime_value": 73000,
+    "preferred_language": "Hindi",
+    "last_rx": {
+      "right_sph": "-6.00",
+      "left_sph": "-5.75",
+      "date": "2025-12-10"
+    }
+  },
+  "C1012": {
+    "customer_id": "C1012",
+    "name": "Deepika Rao",
+    "phone": "+91-99888-77665",
+    "email": "deepika.rao@example.com",
+    "city": "Pune",
+    "gold_member": false,
+    "lifetime_value": 5600,
+    "preferred_language": "English",
+    "last_rx": {
+      "right_sph": "+1.25",
+      "left_sph": "+1.50",
+      "date": "2026-02-28"
+    }
+  },
+  "C1013": {
+    "customer_id": "C1013",
+    "name": "Harsh Shah",
+    "phone": "+91-98200-11223",
+    "email": "harsh.shah@example.com",
+    "city": "Surat",
+    "gold_member": false,
+    "lifetime_value": 1200,
+    "preferred_language": "English",
+    "last_rx": {
+      "right_sph": "0.00",
+      "left_sph": "0.00",
+      "date": "2026-04-15"
+    }
+  },
+  "C1014": {
+    "customer_id": "C1014",
+    "name": "Shalini Joshi",
+    "phone": "+91-90909-80808",
+    "email": "shalini.j@example.com",
+    "city": "Lucknow",
+    "gold_member": true,
+    "lifetime_value": 22800,
+    "preferred_language": "Hindi",
+    "last_rx": {
+      "right_sph": "-4.00",
+      "left_sph": "-4.25",
+      "date": "2026-03-05"
+    }
+  },
+  "C1015": {
+    "customer_id": "C1015",
+    "name": "Tan Wei Ming",
+    "phone": "+65-9123-4567",
+    "email": "weiming.tan@example.sg",
+    "city": "Singapore",
+    "gold_member": true,
+    "lifetime_value": 19500,
+    "preferred_language": "English",
+    "last_rx": {
+      "right_sph": "-3.00",
+      "left_sph": "-3.25",
+      "date": "2026-02-14"
+    }
+  },
+  "C1016": {
+    "customer_id": "C1016",
+    "name": "Somchai Preecha",
+    "phone": "+66-81-234-5678",
+    "email": "somchai.p@example.th",
+    "city": "Bangkok",
+    "gold_member": false,
+    "lifetime_value": 2900,
+    "preferred_language": "English",
+    "last_rx": {
+      "right_sph": "-1.50",
+      "left_sph": "-1.75",
+      "date": "2026-04-01"
+    }
+  },
+  "C1017": {
+    "customer_id": "C1017",
+    "name": "Fatima Al-Sayed",
+    "phone": "+966-55-123-4567",
+    "email": "fatima.a@example.sa",
+    "city": "Riyadh",
+    "gold_member": true,
+    "lifetime_value": 14200,
+    "preferred_language": "English",
+    "last_rx": {
+      "right_sph": "-2.00",
+      "left_sph": "-2.25",
+      "date": "2026-03-20"
+    }
+  },
+  "C9001": {
+    "customer_id": "C9001",
+    "name": "Mohit",
+    "phone": "1234567899",
+    "email": "fghj@gmail.com",
+    "city": "delhi",
+    "gold_member": true,
+    "lifetime_value": 0,
+    "preferred_language": "English",
+    "last_rx": {
+      "right_sph": "0.00",
+      "left_sph": "0.00",
+      "date": "2026-04-23"
+    }
+  },
+  "C9002": {
+    "customer_id": "C9002",
+    "name": "shikhar",
+    "phone": "N/A",
+    "email": "N/A",
+    "city": "N/A",
+    "gold_member": false,
+    "lifetime_value": 1000000,
+    "preferred_language": "English",
+    "last_rx": {
+      "right_sph": "0.00",
+      "left_sph": "0.00",
+      "date": "2026-04-23"
+    }
+  }
+}
