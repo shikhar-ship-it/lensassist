@@ -16,6 +16,7 @@ venv/
 node_modules/
 frontend/dist/
 frontend/.vite/
+*.tsbuildinfo
 
 # Memory & runtime data
 data/memory/*.json
