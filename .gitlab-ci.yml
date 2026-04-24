@@ -1,0 +1,46 @@
+# Auto-build and push the LensAssist image to ECR on every push to main.
+# App Runner is configured with deployment trigger = Automatic, so a new
+# :latest image in ECR triggers a redeploy within ~1 minute.
+#
+# Required GitLab CI/CD variables (Settings → CI/CD → Variables):
+#   AWS_ACCESS_KEY_ID       — IAM user key with ECR push permissions
+#   AWS_SECRET_ACCESS_KEY   — matching secret
+#   AWS_ACCOUNT_ID          — 964059510816
+#   AWS_REGION              — us-east-1
+
+stages:
+  - build
+
+variables:
+  IMAGE_NAME: lensassist
+  ECR_URI: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${IMAGE_NAME}
+
+build-and-push:
+  stage: build
+  image: docker:24-cli
+  services:
+    - name: docker:24-dind
+      alias: docker
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+  before_script:
+    # Install AWS CLI v2 in the minimal docker image
+    - apk add --no-cache python3 py3-pip curl unzip
+    - curl -sSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscli.zip
+    - unzip -q /tmp/awscli.zip -d /tmp && /tmp/aws/install
+  script:
+    - echo "Logging into ECR..."
+    - aws ecr get-login-password --region ${AWS_REGION} |
+        docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+    - echo "Building image..."
+    - docker build -t ${IMAGE_NAME}:${CI_COMMIT_SHORT_SHA} -t ${IMAGE_NAME}:latest .
+    - docker tag ${IMAGE_NAME}:latest ${ECR_URI}:latest
+    - docker tag ${IMAGE_NAME}:${CI_COMMIT_SHORT_SHA} ${ECR_URI}:${CI_COMMIT_SHORT_SHA}
+    - echo "Pushing to ECR..."
+    - docker push ${ECR_URI}:latest
+    - docker push ${ECR_URI}:${CI_COMMIT_SHORT_SHA}
+    - echo "✅ Image pushed. App Runner will auto-deploy in ~1 min."
+  only:
+    - main
