@@ -283,5 +283,20 @@
       "left_sph": "0.00",
       "date": "2026-04-23"
     }
+  },
+  "C1018": {
+    "customer_id": "C1018",
+    "name": "Aditya Verma",
+    "phone": "+91-99999-99999",
+    "email": "aditya.v@example.com",
+    "city": "Bengaluru",
+    "gold_member": true,
+    "lifetime_value": 12500,
+    "preferred_language": "English",
+    "last_rx": {
+      "right_sph": "-1.50",
+      "left_sph": "-1.75",
+      "date": "2026-04-20"
+    }
   }
 }
