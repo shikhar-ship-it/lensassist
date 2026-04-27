@@ -82,6 +82,7 @@ function PoliciesTab() {
   const [status, setStatus] = useState<string | null>(null);
   const [filter, setFilter] = useState("");
   const [page, setPage] = useState(1);
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
   const load = () => {
     api
@@ -137,12 +138,16 @@ function PoliciesTab() {
     }
   };
 
-  const remove = async () => {
+  const remove = () => {
     if (!selected) return;
-    if (!confirm(`Delete policy "${selected}"?`)) return;
+    setConfirmDelete(selected);
+  };
+
+  const doDelete = async () => {
+    if (!confirmDelete) return;
     setBusy(true);
     try {
-      await api.adminDeletePolicy(selected);
+      await api.adminDeletePolicy(confirmDelete);
       setSelected(null);
       setEditName("");
       setEditBody("");
@@ -151,6 +156,7 @@ function PoliciesTab() {
       setError(String(e));
     } finally {
       setBusy(false);
+      setConfirmDelete(null);
     }
   };
 
@@ -162,6 +168,15 @@ function PoliciesTab() {
   const visible = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   return (
+    <>
+    <ConfirmDialog
+      open={!!confirmDelete}
+      title="Delete policy"
+      message={`Permanently delete the policy "${confirmDelete}"? The agent will no longer cite this content. This affects every customer chat going forward.`}
+      busy={busy}
+      onConfirm={doDelete}
+      onCancel={() => setConfirmDelete(null)}
+    />
     <div className="grid grid-cols-3 gap-4 h-full">
       {/* Sidebar list */}
       <div className="col-span-1 border border-slate-200 rounded-lg p-3 flex flex-col">
@@ -257,6 +272,7 @@ function PoliciesTab() {
         </div>
       </div>
     </div>
+    </>
   );
 }
 
@@ -268,6 +284,7 @@ function CasesTab({ customers }: { customers: Record<string, Customer> }) {
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState("");
   const [page, setPage] = useState(1);
+  const [confirmDelete, setConfirmDelete] = useState<Case | null>(null);
 
   const load = () =>
     api
@@ -325,10 +342,18 @@ function CasesTab({ customers }: { customers: Record<string, Customer> }) {
     }
   };
 
-  const remove = async (id: string) => {
-    if (!confirm(`Delete case ${id}?`)) return;
-    await api.adminDeleteCase(id).catch((e) => setError(String(e)));
-    load();
+  const doDelete = async () => {
+    if (!confirmDelete) return;
+    setBusy(true);
+    try {
+      await api.adminDeleteCase(confirmDelete.case_id);
+      load();
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setBusy(false);
+      setConfirmDelete(null);
+    }
   };
 
   if (editing) {
@@ -455,6 +480,19 @@ function CasesTab({ customers }: { customers: Record<string, Customer> }) {
   const visible = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   return (
+    <>
+    <ConfirmDialog
+      open={!!confirmDelete}
+      title="Delete case"
+      message={
+        confirmDelete
+          ? `Permanently delete case ${confirmDelete.case_id} ("${confirmDelete.subject}")? Customer: ${customers[confirmDelete.customer_id]?.name ?? confirmDelete.customer_id}.`
+          : ""
+      }
+      busy={busy}
+      onConfirm={doDelete}
+      onCancel={() => setConfirmDelete(null)}
+    />
     <div>
       <div className="flex items-center justify-between mb-3 gap-3">
         <input
@@ -510,7 +548,7 @@ function CasesTab({ customers }: { customers: Record<string, Customer> }) {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      remove(c.case_id);
+                      setConfirmDelete(c);
                     }}
                     className="text-xs text-red-500 hover:text-red-700"
                   >
@@ -536,6 +574,7 @@ function CasesTab({ customers }: { customers: Record<string, Customer> }) {
         onPageChange={setPage}
       />
     </div>
+    </>
   );
 }
 
@@ -552,6 +591,7 @@ function CustomersTab({
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState("");
   const [page, setPage] = useState(1);
+  const [confirmDelete, setConfirmDelete] = useState<Customer | null>(null);
 
   const save = async () => {
     if (!editing) return;
@@ -568,16 +608,17 @@ function CustomersTab({
     }
   };
 
-  const remove = async (id: string) => {
-    if (!confirm(`Delete customer ${id} (and all their memory)?`)) return;
+  const doDelete = async () => {
+    if (!confirmDelete) return;
     setBusy(true);
     try {
-      await api.adminDeleteCustomer(id);
+      await api.adminDeleteCustomer(confirmDelete.customer_id);
       onChanged();
     } catch (e) {
       setError(String(e));
     } finally {
       setBusy(false);
+      setConfirmDelete(null);
     }
   };
 
@@ -680,6 +721,19 @@ function CustomersTab({
   const visible = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   return (
+    <>
+    <ConfirmDialog
+      open={!!confirmDelete}
+      title="Delete customer"
+      message={
+        confirmDelete
+          ? `Permanently delete ${confirmDelete.name} (${confirmDelete.customer_id})? This also wipes all their conversation memory and remembered facts from DynamoDB.`
+          : ""
+      }
+      busy={busy}
+      onConfirm={doDelete}
+      onCancel={() => setConfirmDelete(null)}
+    />
     <div>
       <div className="flex items-center gap-3 mb-3">
         <input
@@ -732,7 +786,7 @@ function CustomersTab({
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      remove(c.customer_id);
+                      setConfirmDelete(c);
                     }}
                     className="text-xs text-red-500 hover:text-red-700"
                   >
@@ -757,6 +811,79 @@ function CustomersTab({
         total={filtered.length}
         onPageChange={setPage}
       />
+    </div>
+    </>
+  );
+}
+
+// ─── Confirm dialog ──────────────────────────────────────────────────
+function ConfirmDialog({
+  open,
+  title,
+  message,
+  confirmLabel = "Delete",
+  destructive = true,
+  busy = false,
+  onConfirm,
+  onCancel,
+}: {
+  open: boolean;
+  title: string;
+  message: string;
+  confirmLabel?: string;
+  destructive?: boolean;
+  busy?: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  if (!open) return null;
+  return (
+    <div
+      className="fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4"
+      onClick={onCancel}
+    >
+      <div
+        className="bg-white rounded-2xl shadow-pop max-w-md w-full p-6"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start gap-4">
+          <div
+            className={`w-12 h-12 rounded-full grid place-items-center text-2xl ${
+              destructive ? "bg-red-100 text-red-600" : "bg-amber-100 text-amber-600"
+            }`}
+          >
+            {destructive ? "⚠️" : "❓"}
+          </div>
+          <div className="flex-1">
+            <div className="text-lg font-bold text-brand-900">{title}</div>
+            <div className="text-sm text-slate-600 mt-1 leading-relaxed">
+              {message}
+            </div>
+          </div>
+        </div>
+        <div className="flex justify-end gap-2 mt-6">
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={busy}
+            className="text-sm font-semibold text-slate-700 hover:text-brand-900 px-4 py-2 rounded-lg border border-slate-200 hover:border-slate-300"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            disabled={busy}
+            className={`text-sm font-semibold text-white px-4 py-2 rounded-lg disabled:opacity-50 ${
+              destructive
+                ? "bg-red-600 hover:bg-red-700"
+                : "bg-brand-500 hover:bg-brand-600"
+            }`}
+          >
+            {busy ? "Working…" : confirmLabel}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
