@@ -22,37 +22,44 @@ LensAssist is a single AI concierge that handles **every post-sales journey** a 
 
 All through a **single chat interface** with optional **voice in / voice out** in **English + Hindi + Hinglish**.
 
-## The 5 capabilities
+## The 6 capabilities
 
 1. **Cross-conversation memory** — every customer has a DynamoDB-persisted record of past turns + durable facts ("allergic to nickel", "prefers Hindi"). The agent references these immediately on sign-in.
 2. **Tool-use on mock Salesforce** — agent fetches cases, decides to auto-resolve vs escalate, writes the status back. 3 tools: `get_customer_cases`, `update_case_status`, `remember_fact`.
 3. **RAG over Lenskart policies** — 8 policy documents (returns, warranty, lens, Gold, EMI, home eye test, international, order status) retrieved per query and grounded into the reply.
 4. **Multilingual** — English, Hindi (Devanagari), Hinglish (Roman) auto-detected; agent replies in the same language and TTS switches voice.
 5. **Proactive outreach** — scheduled script scans stale open cases (>24 h) and drafts WhatsApp-style follow-ups.
+6. **Live admin panel** — CX admins can edit policies/cases/customers in real time. Policy edits hot-reload the RAG cache; the very next chat uses the new content. All edits persist to DynamoDB.
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  React + Vite + Tailwind · login · chat · voice · analytics │
-└───────────────────────────────┬─────────────────────────────┘
-                                │ /api/* (Bearer JWT)
-                                ▼
-┌─────────────────────────────────────────────────────────────┐
-│  FastAPI (Python 3.12)                                      │
-│   • POST /api/auth/{request-otp, verify, admin}             │
-│   • POST /api/chat (non-streaming) + /api/chat/stream (SSE) │
-│   • GET  /api/customers, /api/customers/:id/cases, /memory  │
-│   • POST /api/tts  →  Amazon Polly (Kajal Neural)           │
-└──┬────────────┬────────────────────┬─────────────────────────┘
-   │            │                    │
-   ▼            ▼                    ▼
-AWS Bedrock   Amazon Polly     DynamoDB
-Claude 4.5    Kajal Neural     lensassist-memory
-(ReAct loop)  (en-IN / hi-IN)  (per-customer turns + facts)
-   │
-   └─ Tool calls (get_cases, update_case, remember_fact)
-      RAG over data/policies/*.md
+┌──────────────────────────────────────────────────────────────────┐
+│  React + Vite + Tailwind                                         │
+│  • Login (customer OTP + admin password)                         │
+│  • Chat (streaming, voice in/out, hold-to-speak, Hindi-aware)    │
+│  • Admin panel (policies / cases / customers — paginated CRUD)   │
+└──────────────────────────────────┬───────────────────────────────┘
+                                   │ /api/* (Bearer JWT)
+                                   ▼
+┌──────────────────────────────────────────────────────────────────┐
+│  FastAPI (Python 3.12)                                           │
+│   • POST /api/auth/{request-otp, verify, admin}                  │
+│   • POST /api/chat + /api/chat/stream (SSE)                      │
+│   • GET  /api/customers, /api/customers/:id/cases, /memory      │
+│   • POST /api/tts  →  Amazon Polly (Kajal Neural)               │
+│   • Admin: GET/PUT/DELETE /api/admin/{policies,cases,customers} │
+└────┬───────────────────┬────────────────────┬───────────────────┘
+     │                   │                    │
+     ▼                   ▼                    ▼
+AWS Bedrock         Amazon Polly         DynamoDB (4 tables)
+Claude Sonnet 4.5   Kajal Neural         ├─ lensassist-customers
+(ReAct loop +       (en-IN / hi-IN)      ├─ lensassist-cases
+ streaming)         servlet on /api/tts  ├─ lensassist-policies
+     │                                   └─ lensassist-memory
+     │
+     └─ Tools: get_customer_cases · update_case_status · remember_fact
+        RAG: keyword retrieval over policies (cached in memory, hot-reload on edit)
 ```
 
 ## System prompt (core)
@@ -126,9 +133,23 @@ cd frontend && npm run dev
 |---|---|
 | **Bedrock** (Claude Sonnet 4.5, inference profile `us.anthropic.claude-sonnet-4-5-20250929-v1:0`) | Agent reasoning, tool-use, streaming generation |
 | **Polly Neural** (`Kajal` voice) | Bilingual Indian English + Hindi TTS |
-| **DynamoDB** (`lensassist-memory` table) | Cross-conversation memory persistence |
+| **DynamoDB** (4 tables — see below) | All persistent state |
 | **ECR + App Runner** | Container hosting, HTTPS domain, auto-scaling |
 | **IAM** | Instance role for credential-less AWS calls from container |
+| **GitHub Actions + ECR** | Auto-build + auto-deploy on push to `main` |
+
+## Data architecture
+
+**Source of truth = DynamoDB.** All persistent state lives in 4 tables in `us-east-1`. The `data/` folder in this repo contains **seed data only** — it bootstraps fresh deployments, gives a file fallback for local dev without AWS creds, and documents the schema. Once a table has rows, files are no longer read from. **Edits via the admin panel write directly to DynamoDB and persist across container restarts.**
+
+| Table | PK | Seed source | Purpose |
+|---|---|---|---|
+| `lensassist-customers` | `customer_id` | `data/customers.json` | Customer profiles (20 seeded) |
+| `lensassist-cases` | `case_id` | `data/cases.json` | Salesforce-mock case records (24 seeded) |
+| `lensassist-policies` | `name` | `data/policies/*.md` | Lenskart policy documents (8 seeded) |
+| `lensassist-memory` | `customer_id` | `scripts/seed_memory.py` | Cross-conversation memory + remembered facts |
+
+Tables auto-create on first read if missing. Auto-seed runs once when a table is empty.
 
 ## Business impact
 
@@ -153,26 +174,31 @@ cd frontend && npm run dev
 .
 ├── frontend/                       # React + Vite + TS + Tailwind
 │   └── src/
-│       ├── App.tsx                 # Top-level app
-│       ├── components/             # Banner, Sidebar, ChatArea, InputBar, ToolTrace, Login
-│       └── hooks/                  # useVoiceInput, useVoiceOutput
+│       ├── App.tsx                 # Top-level app + auth gate
+│       ├── components/             # Banner, Sidebar, ChatArea, InputBar, ToolTrace, Login, AdminPanel
+│       └── hooks/                  # useVoiceInput (hold-to-speak), useVoiceOutput (Polly + browser fallback)
 ├── backend/
-│   ├── server.py                   # FastAPI routes, streaming, TTS, auth
+│   ├── server.py                   # FastAPI routes: auth, chat (SSE streaming), TTS, admin CRUD
 │   └── auth.py                     # JWT, OTP, admin login, per-customer ownership
 ├── agent/
 │   ├── concierge.py                # Claude agent + tool-use loop + streaming generator
-│   ├── knowledge.py                # RAG over policies
-│   ├── memory.py                   # DynamoDB / JSON cross-conversation memory
-│   └── salesforce_mock.py          # Mock Salesforce case CRUD
-├── data/
-│   ├── customers.json              # 19 customers (India + UAE + Singapore + Thailand + KSA)
-│   ├── cases.json                  # 23 Salesforce cases
+│   ├── knowledge.py                # RAG retrieval (in-memory cache, hot-reloads on edits)
+│   ├── memory.py                   # DynamoDB / file-fallback cross-conversation memory
+│   ├── storage.py                  # Unified DynamoDB layer (customers, cases, policies)
+│   └── salesforce_mock.py          # Salesforce-shaped wrapper around storage layer
+├── data/                           # SEED DATA only — runtime state lives in DynamoDB
+│   ├── customers.json              # 20 customers (India + UAE + SG + TH + KSA)
+│   ├── cases.json                  # 24 Salesforce cases
 │   └── policies/                   # 8 Lenskart policy markdown docs
 ├── scripts/
 │   ├── seed_memory.py              # Seed DynamoDB with 17 customers' past memory
 │   └── proactive_outreach.py       # Stale-case scanner → WhatsApp drafts
 ├── Dockerfile                      # Multi-stage: Node build + Python runtime
-├── .gitlab-ci.yml                  # Auto-build → ECR → App Runner
+├── .github/workflows/deploy.yml    # GitHub Actions: build → ECR → App Runner
+├── .gitlab-ci.yml                  # GitLab CI alternative
 ├── requirements.txt
+├── APPROACH_NOTE.md                # Submission 1-pager
+├── DEMO_TRANSCRIPT.md              # Submission 8-field transcript
+├── DEMO_SCRIPT.md                  # 3-min video storyboard
 └── README.md
 ```
