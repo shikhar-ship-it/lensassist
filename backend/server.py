@@ -21,7 +21,7 @@ from pydantic import BaseModel, Field
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 load_dotenv()
 
-from agent import concierge, memory, salesforce_mock  # noqa: E402
+from agent import concierge, knowledge, memory, salesforce_mock  # noqa: E402
 from backend import auth  # noqa: E402
 from fastapi import Depends  # noqa: E402
 
@@ -82,6 +82,33 @@ class ChatResponse(BaseModel):
 
 class TTSRequest(BaseModel):
     text: str
+
+
+class PolicyPayload(BaseModel):
+    name: str
+    body: str
+
+
+class CasePayload(BaseModel):
+    case_id: str | None = None
+    customer_id: str
+    order_id: str = ""
+    subject: str
+    status: str = "Open"
+    priority: str = "Medium"
+    channel: str = "App"
+    product: str = ""
+    description: str = ""
+
+
+class CustomerUpdate(BaseModel):
+    name: str | None = None
+    phone: str | None = None
+    email: str | None = None
+    city: str | None = None
+    gold_member: bool | None = None
+    lifetime_value: int | None = None
+    preferred_language: str | None = None
 
 
 class OtpRequest(BaseModel):
@@ -397,6 +424,158 @@ def tts(req: TTSRequest) -> Response:
         media_type="audio/mpeg",
         headers={"Cache-Control": "no-cache"},
     )
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# ADMIN — policies
+# ──────────────────────────────────────────────────────────────────────────
+@app.get("/api/admin/policies")
+def admin_list_policies(
+    _: dict[str, Any] = Depends(auth.require_admin),
+) -> list[dict[str, str]]:
+    return knowledge.list_policies()
+
+
+@app.put("/api/admin/policies/{name}")
+def admin_save_policy(
+    name: str,
+    req: PolicyPayload,
+    _: dict[str, Any] = Depends(auth.require_admin),
+) -> dict[str, str]:
+    saved = knowledge.write_policy(req.name or name, req.body)
+    return saved
+
+
+@app.delete("/api/admin/policies/{name}")
+def admin_delete_policy(
+    name: str,
+    _: dict[str, Any] = Depends(auth.require_admin),
+) -> dict[str, Any]:
+    ok = knowledge.delete_policy(name)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Policy not found")
+    return {"status": "deleted", "name": name}
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# ADMIN — cases
+# ──────────────────────────────────────────────────────────────────────────
+@app.get("/api/admin/cases")
+def admin_list_cases(
+    _: dict[str, Any] = Depends(auth.require_admin),
+) -> list[dict[str, Any]]:
+    cases = json.loads(salesforce_mock.CASES_FILE.read_text())
+    return list(cases.values())
+
+
+@app.post("/api/admin/cases")
+def admin_create_case(
+    req: CasePayload,
+    _: dict[str, Any] = Depends(auth.require_admin),
+) -> dict[str, Any]:
+    cases = json.loads(salesforce_mock.CASES_FILE.read_text())
+    if req.case_id and req.case_id in cases:
+        raise HTTPException(status_code=409, detail="Case already exists")
+    nums = [
+        int(k.split("-")[1])
+        for k in cases
+        if k.startswith("SF-") and k.split("-")[1].isdigit()
+    ]
+    new_id = req.case_id or f"SF-{max(nums + [7000]) + 1}"
+    now = date.today().isoformat() + "T00:00:00"
+    cases[new_id] = {
+        "case_id": new_id,
+        "customer_id": req.customer_id,
+        "order_id": req.order_id,
+        "subject": req.subject,
+        "status": req.status,
+        "priority": req.priority,
+        "created": now,
+        "last_update": now,
+        "channel": req.channel,
+        "product": req.product,
+        "description": req.description,
+        "messages": [],
+    }
+    salesforce_mock.CASES_FILE.write_text(json.dumps(cases, indent=2))
+    return cases[new_id]
+
+
+@app.put("/api/admin/cases/{case_id}")
+def admin_update_case(
+    case_id: str,
+    req: CasePayload,
+    _: dict[str, Any] = Depends(auth.require_admin),
+) -> dict[str, Any]:
+    cases = json.loads(salesforce_mock.CASES_FILE.read_text())
+    if case_id not in cases:
+        raise HTTPException(status_code=404, detail="Case not found")
+    case = cases[case_id]
+    case.update(
+        {
+            "customer_id": req.customer_id,
+            "order_id": req.order_id,
+            "subject": req.subject,
+            "status": req.status,
+            "priority": req.priority,
+            "channel": req.channel,
+            "product": req.product,
+            "description": req.description,
+            "last_update": date.today().isoformat() + "T00:00:00",
+        }
+    )
+    salesforce_mock.CASES_FILE.write_text(json.dumps(cases, indent=2))
+    return case
+
+
+@app.delete("/api/admin/cases/{case_id}")
+def admin_delete_case(
+    case_id: str,
+    _: dict[str, Any] = Depends(auth.require_admin),
+) -> dict[str, str]:
+    cases = json.loads(salesforce_mock.CASES_FILE.read_text())
+    if case_id not in cases:
+        raise HTTPException(status_code=404, detail="Case not found")
+    del cases[case_id]
+    salesforce_mock.CASES_FILE.write_text(json.dumps(cases, indent=2))
+    return {"status": "deleted", "case_id": case_id}
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# ADMIN — customers (already have create; adding update + delete)
+# ──────────────────────────────────────────────────────────────────────────
+@app.put("/api/admin/customers/{customer_id}")
+def admin_update_customer(
+    customer_id: str,
+    req: CustomerUpdate,
+    _: dict[str, Any] = Depends(auth.require_admin),
+) -> dict[str, Any]:
+    customers = _load_customers()
+    if customer_id not in customers:
+        raise HTTPException(status_code=404, detail="Customer not found")
+    cust = customers[customer_id]
+    for field, value in req.model_dump(exclude_unset=True).items():
+        cust[field] = value
+    _save_customers(customers)
+    return cust
+
+
+@app.delete("/api/admin/customers/{customer_id}")
+def admin_delete_customer(
+    customer_id: str,
+    _: dict[str, Any] = Depends(auth.require_admin),
+) -> dict[str, str]:
+    customers = _load_customers()
+    if customer_id not in customers:
+        raise HTTPException(status_code=404, detail="Customer not found")
+    del customers[customer_id]
+    _save_customers(customers)
+    # Also clean DynamoDB memory for this customer
+    try:
+        memory.reset(customer_id)
+    except Exception:
+        pass
+    return {"status": "deleted", "customer_id": customer_id}
 
 
 # ──────────────────────────────────────────────────────────────────────────

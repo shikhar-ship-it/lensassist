@@ -90,6 +90,57 @@ export const api = {
       body: JSON.stringify({ email, password }),
     }),
 
+  // ─── Admin: Policies ────────────────────────────────────────────────
+  adminListPolicies: () =>
+    req<{ name: string; body: string; path: string }[]>("/api/admin/policies"),
+
+  adminSavePolicy: (originalName: string, name: string, body: string) =>
+    req<{ name: string; body: string; path: string }>(
+      `/api/admin/policies/${encodeURIComponent(originalName)}`,
+      { method: "PUT", body: JSON.stringify({ name, body }) }
+    ),
+
+  adminDeletePolicy: (name: string) =>
+    req<{ status: string; name: string }>(
+      `/api/admin/policies/${encodeURIComponent(name)}`,
+      { method: "DELETE" }
+    ),
+
+  // ─── Admin: Cases ───────────────────────────────────────────────────
+  adminListCases: () => req<Case[]>("/api/admin/cases"),
+
+  adminCreateCase: (payload: Omit<Case, "messages" | "created" | "last_update">) =>
+    req<Case>("/api/admin/cases", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+
+  adminUpdateCase: (
+    caseId: string,
+    payload: Omit<Case, "messages" | "created" | "last_update">
+  ) =>
+    req<Case>(`/api/admin/cases/${encodeURIComponent(caseId)}`, {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    }),
+
+  adminDeleteCase: (caseId: string) =>
+    req<{ status: string }>(`/api/admin/cases/${encodeURIComponent(caseId)}`, {
+      method: "DELETE",
+    }),
+
+  // ─── Admin: Customers ───────────────────────────────────────────────
+  adminUpdateCustomer: (id: string, payload: Partial<Customer>) =>
+    req<Customer>(`/api/admin/customers/${encodeURIComponent(id)}`, {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    }),
+
+  adminDeleteCustomer: (id: string) =>
+    req<{ status: string }>(`/api/admin/customers/${encodeURIComponent(id)}`, {
+      method: "DELETE",
+    }),
+
   listCustomers: () => req<Record<string, Customer>>("/api/customers"),
 
   createCustomer: (payload: NewCustomerPayload) =>

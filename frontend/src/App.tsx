@@ -13,6 +13,7 @@ import { Sidebar } from "./components/Sidebar";
 import { ChatArea } from "./components/ChatArea";
 import { InputBar } from "./components/InputBar";
 import { Login } from "./components/Login";
+import { AdminPanel } from "./components/AdminPanel";
 import { useVoiceOutput } from "./hooks/useVoiceOutput";
 import { clearAuth, loadAuth, saveAuth, type AuthState } from "./auth";
 
@@ -33,6 +34,7 @@ export default function App() {
     active: string;
     table?: string | null;
   } | null>(null);
+  const [showAdmin, setShowAdmin] = useState(false);
 
   const {
     speak,
@@ -241,6 +243,14 @@ export default function App() {
                 {auth.role === "admin" ? "CX Admin" : "Customer"}
               </div>
             </div>
+            {auth.role === "admin" && (
+              <button
+                onClick={() => setShowAdmin(true)}
+                className="text-xs text-brand-500 hover:text-brand-700 font-semibold border border-brand-100 hover:border-brand-500 bg-brand-50 rounded-lg px-3 py-2 transition-colors"
+              >
+                ⚙️ Manage
+              </button>
+            )}
             <button
               onClick={handleLogout}
               className="text-xs text-slate-500 hover:text-red-600 border border-slate-200 hover:border-red-200 rounded-lg px-3 py-2 transition-colors"
@@ -262,6 +272,16 @@ export default function App() {
           </div>
         )}
       </div>
+
+      {showAdmin && auth.role === "admin" && (
+        <AdminPanel
+          customers={customers}
+          onClose={() => setShowAdmin(false)}
+          onCustomersChanged={() => {
+            api.listCustomers().then(setCustomers).catch(() => {});
+          }}
+        />
+      )}
 
       <div className="flex-1 flex mt-4 overflow-hidden border-t border-slate-200">
         <Sidebar
