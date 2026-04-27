@@ -68,6 +68,8 @@ export function AdminPanel({ customers, onClose, onCustomersChanged }: Props) {
 }
 
 // ─── Policies tab ──────────────────────────────────────────────────────
+const PAGE_SIZE = 10;
+
 function PoliciesTab() {
   const [policies, setPolicies] = useState<
     { name: string; body: string; path: string }[]
@@ -78,6 +80,8 @@ function PoliciesTab() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
+  const [filter, setFilter] = useState("");
+  const [page, setPage] = useState(1);
 
   const load = () => {
     api
@@ -150,18 +154,34 @@ function PoliciesTab() {
     }
   };
 
+  const filtered = policies.filter((p) =>
+    p.name.toLowerCase().includes(filter.toLowerCase())
+  );
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, pageCount);
+  const visible = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+
   return (
     <div className="grid grid-cols-3 gap-4 h-full">
       {/* Sidebar list */}
-      <div className="col-span-1 border border-slate-200 rounded-lg p-3 overflow-y-auto chat-scroll">
+      <div className="col-span-1 border border-slate-200 rounded-lg p-3 flex flex-col">
         <button
           onClick={newPolicy}
-          className="w-full bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold py-2 rounded-md mb-3"
+          className="w-full bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold py-2 rounded-md mb-2"
         >
           + New policy
         </button>
-        <div className="space-y-1">
-          {policies.map((p) => (
+        <input
+          value={filter}
+          onChange={(e) => {
+            setFilter(e.target.value);
+            setPage(1);
+          }}
+          placeholder="Search policies…"
+          className="w-full mb-3 px-3 py-1.5 text-sm rounded-md border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
+        />
+        <div className="space-y-1 flex-1 overflow-y-auto chat-scroll">
+          {visible.map((p) => (
             <button
               key={p.name}
               onClick={() => pick(p.name)}
@@ -174,7 +194,18 @@ function PoliciesTab() {
               📄 {p.name}
             </button>
           ))}
+          {visible.length === 0 && (
+            <div className="text-xs text-slate-400 italic px-2 py-1">
+              No policies match "{filter}"
+            </div>
+          )}
         </div>
+        <Pagination
+          page={safePage}
+          pageSize={PAGE_SIZE}
+          total={filtered.length}
+          onPageChange={setPage}
+        />
       </div>
 
       {/* Editor */}
@@ -235,6 +266,8 @@ function CasesTab({ customers }: { customers: Record<string, Customer> }) {
   const [editing, setEditing] = useState<Case | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [filter, setFilter] = useState("");
+  const [page, setPage] = useState(1);
 
   const load = () =>
     api
@@ -405,15 +438,37 @@ function CasesTab({ customers }: { customers: Record<string, Customer> }) {
     );
   }
 
+  const filtered = cases.filter((c) => {
+    const q = filter.toLowerCase();
+    if (!q) return true;
+    const cust = customers[c.customer_id];
+    return (
+      c.case_id.toLowerCase().includes(q) ||
+      c.subject.toLowerCase().includes(q) ||
+      c.status.toLowerCase().includes(q) ||
+      c.priority.toLowerCase().includes(q) ||
+      (cust?.name ?? "").toLowerCase().includes(q)
+    );
+  });
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, pageCount);
+  const visible = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+
   return (
     <div>
-      <div className="flex items-center justify-between mb-3">
-        <div className="text-sm text-slate-500">
-          {cases.length} cases · click any row to edit
-        </div>
+      <div className="flex items-center justify-between mb-3 gap-3">
+        <input
+          value={filter}
+          onChange={(e) => {
+            setFilter(e.target.value);
+            setPage(1);
+          }}
+          placeholder="Search cases by ID, subject, customer, status…"
+          className="flex-1 px-3 py-2 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
+        />
         <button
           onClick={() => setEditing(blank)}
-          className="bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold px-4 py-2 rounded-lg"
+          className="bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold px-4 py-2 rounded-lg whitespace-nowrap"
         >
           + New case
         </button>
@@ -436,7 +491,7 @@ function CasesTab({ customers }: { customers: Record<string, Customer> }) {
             </tr>
           </thead>
           <tbody>
-            {cases.map((c) => (
+            {visible.map((c) => (
               <tr
                 key={c.case_id}
                 className="border-t border-slate-100 hover:bg-slate-50 cursor-pointer"
@@ -464,9 +519,22 @@ function CasesTab({ customers }: { customers: Record<string, Customer> }) {
                 </td>
               </tr>
             ))}
+            {visible.length === 0 && (
+              <tr>
+                <td colSpan={6} className="px-3 py-8 text-center text-slate-400 italic">
+                  No cases match "{filter}"
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
+      <Pagination
+        page={safePage}
+        pageSize={PAGE_SIZE}
+        total={filtered.length}
+        onPageChange={setPage}
+      />
     </div>
   );
 }
@@ -482,6 +550,8 @@ function CustomersTab({
   const [editing, setEditing] = useState<Customer | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [filter, setFilter] = useState("");
+  const [page, setPage] = useState(1);
 
   const save = async () => {
     if (!editing) return;
@@ -594,10 +664,36 @@ function CustomersTab({
     );
   }
 
+  const filtered = Object.values(customers).filter((c) => {
+    const q = filter.toLowerCase();
+    if (!q) return true;
+    return (
+      c.customer_id.toLowerCase().includes(q) ||
+      c.name.toLowerCase().includes(q) ||
+      c.phone.toLowerCase().includes(q) ||
+      c.city.toLowerCase().includes(q) ||
+      c.email.toLowerCase().includes(q)
+    );
+  });
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, pageCount);
+  const visible = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+
   return (
     <div>
-      <div className="text-sm text-slate-500 mb-3">
-        {Object.keys(customers).length} customers · click any row to edit
+      <div className="flex items-center gap-3 mb-3">
+        <input
+          value={filter}
+          onChange={(e) => {
+            setFilter(e.target.value);
+            setPage(1);
+          }}
+          placeholder="Search by name, phone, email, city…"
+          className="flex-1 px-3 py-2 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
+        />
+        <div className="text-xs text-slate-400 whitespace-nowrap">
+          {filtered.length} of {Object.keys(customers).length} customers
+        </div>
       </div>
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 rounded-lg mb-3">
@@ -617,7 +713,7 @@ function CustomersTab({
             </tr>
           </thead>
           <tbody>
-            {Object.values(customers).map((c) => (
+            {visible.map((c) => (
               <tr
                 key={c.customer_id}
                 className="border-t border-slate-100 hover:bg-slate-50 cursor-pointer"
@@ -645,8 +741,65 @@ function CustomersTab({
                 </td>
               </tr>
             ))}
+            {visible.length === 0 && (
+              <tr>
+                <td colSpan={6} className="px-3 py-8 text-center text-slate-400 italic">
+                  No customers match "{filter}"
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
+      </div>
+      <Pagination
+        page={safePage}
+        pageSize={PAGE_SIZE}
+        total={filtered.length}
+        onPageChange={setPage}
+      />
+    </div>
+  );
+}
+
+// ─── Pagination helper ───────────────────────────────────────────────
+function Pagination({
+  page,
+  pageSize,
+  total,
+  onPageChange,
+}: {
+  page: number;
+  pageSize: number;
+  total: number;
+  onPageChange: (p: number) => void;
+}) {
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  if (total <= pageSize) return null;
+  const from = (page - 1) * pageSize + 1;
+  const to = Math.min(page * pageSize, total);
+  return (
+    <div className="flex items-center justify-between mt-3 text-xs text-slate-500">
+      <div>
+        Showing {from}–{to} of {total}
+      </div>
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => onPageChange(page - 1)}
+          disabled={page <= 1}
+          className="px-3 py-1.5 rounded-md border border-slate-200 hover:border-brand-500 hover:text-brand-500 disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          ← Prev
+        </button>
+        <div className="font-medium">
+          Page {page} of {totalPages}
+        </div>
+        <button
+          onClick={() => onPageChange(page + 1)}
+          disabled={page >= totalPages}
+          className="px-3 py-1.5 rounded-md border border-slate-200 hover:border-brand-500 hover:text-brand-500 disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          Next →
+        </button>
       </div>
     </div>
   );

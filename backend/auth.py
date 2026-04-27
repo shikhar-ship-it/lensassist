@@ -1,7 +1,7 @@
 """JWT-based auth for LensAssist.
 
 For the hackathon demo:
-- OTP is hard-coded to 1234 (any customer in customers.json can log in)
+- OTP is hard-coded to 1234 (any customer in DynamoDB can log in)
 - Admin is hard-coded to admin@lenskart.com / demo123
 - Tokens are HS256-signed with a local secret
 
@@ -9,15 +9,19 @@ Production path: swap request_otp() for AWS SNS → SMS; swap OTP verification
 for a Redis-cached one-time code; swap admin login for AWS Cognito User Pools.
 """
 from __future__ import annotations
-import json
 import os
 import secrets
+import sys
 import time
 from pathlib import Path
 from typing import Any
 
 import jwt
 from fastapi import Depends, Header, HTTPException, status
+
+# Allow `from agent import storage`
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from agent import storage  # noqa: E402
 
 AUTH_SECRET = os.environ.get("LENSASSIST_JWT_SECRET") or secrets.token_hex(32)
 JWT_ALGO = "HS256"
@@ -27,11 +31,9 @@ DEMO_OTP = "1234"
 ADMIN_EMAIL = "admin@lenskart.com"
 ADMIN_PASSWORD = "demo123"
 
-CUSTOMERS_FILE = Path(__file__).resolve().parent.parent / "data" / "customers.json"
-
 
 def _load_customers() -> dict[str, Any]:
-    return json.loads(CUSTOMERS_FILE.read_text())
+    return storage.customers_load_all()
 
 
 def find_customer_by_phone(phone: str) -> dict[str, Any] | None:

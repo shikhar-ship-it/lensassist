@@ -21,7 +21,7 @@ from pydantic import BaseModel, Field
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 load_dotenv()
 
-from agent import concierge, knowledge, memory, salesforce_mock  # noqa: E402
+from agent import concierge, knowledge, memory, salesforce_mock, storage  # noqa: E402
 from backend import auth  # noqa: E402
 from fastapi import Depends  # noqa: E402
 
@@ -38,11 +38,11 @@ app.add_middleware(
 
 
 def _load_customers() -> dict[str, Any]:
-    return json.loads(CUSTOMERS_FILE.read_text())
+    return storage.customers_load_all()
 
 
-def _save_customers(customers: dict[str, Any]) -> None:
-    CUSTOMERS_FILE.write_text(json.dumps(customers, indent=2))
+def _save_customer(data: dict[str, Any]) -> None:
+    storage.customer_save(data)
 
 
 def _next_customer_id(customers: dict[str, Any]) -> str:
@@ -262,7 +262,7 @@ def create_customer(
 ) -> dict[str, Any]:
     customers = _load_customers()
     new_id = _next_customer_id(customers)
-    customers[new_id] = {
+    new_customer = {
         "customer_id": new_id,
         "name": req.name.strip() or "Unnamed",
         "phone": req.phone or "N/A",
@@ -277,8 +277,8 @@ def create_customer(
             "date": date.today().isoformat(),
         },
     }
-    _save_customers(customers)
-    return customers[new_id]
+    _save_customer(new_customer)
+    return new_customer
 
 
 @app.get("/api/customers/{customer_id}/cases")
@@ -464,8 +464,7 @@ def admin_delete_policy(
 def admin_list_cases(
     _: dict[str, Any] = Depends(auth.require_admin),
 ) -> list[dict[str, Any]]:
-    cases = json.loads(salesforce_mock.CASES_FILE.read_text())
-    return list(cases.values())
+    return list(storage.cases_load_all().values())
 
 
 @app.post("/api/admin/cases")
@@ -473,7 +472,7 @@ def admin_create_case(
     req: CasePayload,
     _: dict[str, Any] = Depends(auth.require_admin),
 ) -> dict[str, Any]:
-    cases = json.loads(salesforce_mock.CASES_FILE.read_text())
+    cases = storage.cases_load_all()
     if req.case_id and req.case_id in cases:
         raise HTTPException(status_code=409, detail="Case already exists")
     nums = [
@@ -483,7 +482,7 @@ def admin_create_case(
     ]
     new_id = req.case_id or f"SF-{max(nums + [7000]) + 1}"
     now = date.today().isoformat() + "T00:00:00"
-    cases[new_id] = {
+    case = {
         "case_id": new_id,
         "customer_id": req.customer_id,
         "order_id": req.order_id,
@@ -497,8 +496,8 @@ def admin_create_case(
         "description": req.description,
         "messages": [],
     }
-    salesforce_mock.CASES_FILE.write_text(json.dumps(cases, indent=2))
-    return cases[new_id]
+    storage.case_save(case)
+    return case
 
 
 @app.put("/api/admin/cases/{case_id}")
@@ -507,10 +506,9 @@ def admin_update_case(
     req: CasePayload,
     _: dict[str, Any] = Depends(auth.require_admin),
 ) -> dict[str, Any]:
-    cases = json.loads(salesforce_mock.CASES_FILE.read_text())
-    if case_id not in cases:
+    case = storage.case_get(case_id)
+    if not case:
         raise HTTPException(status_code=404, detail="Case not found")
-    case = cases[case_id]
     case.update(
         {
             "customer_id": req.customer_id,
@@ -524,7 +522,7 @@ def admin_update_case(
             "last_update": date.today().isoformat() + "T00:00:00",
         }
     )
-    salesforce_mock.CASES_FILE.write_text(json.dumps(cases, indent=2))
+    storage.case_save(case)
     return case
 
 
@@ -533,11 +531,8 @@ def admin_delete_case(
     case_id: str,
     _: dict[str, Any] = Depends(auth.require_admin),
 ) -> dict[str, str]:
-    cases = json.loads(salesforce_mock.CASES_FILE.read_text())
-    if case_id not in cases:
+    if not storage.case_delete(case_id):
         raise HTTPException(status_code=404, detail="Case not found")
-    del cases[case_id]
-    salesforce_mock.CASES_FILE.write_text(json.dumps(cases, indent=2))
     return {"status": "deleted", "case_id": case_id}
 
 
@@ -550,13 +545,12 @@ def admin_update_customer(
     req: CustomerUpdate,
     _: dict[str, Any] = Depends(auth.require_admin),
 ) -> dict[str, Any]:
-    customers = _load_customers()
-    if customer_id not in customers:
+    cust = storage.customer_get(customer_id)
+    if not cust:
         raise HTTPException(status_code=404, detail="Customer not found")
-    cust = customers[customer_id]
     for field, value in req.model_dump(exclude_unset=True).items():
         cust[field] = value
-    _save_customers(customers)
+    storage.customer_save(cust)
     return cust
 
 
@@ -565,11 +559,8 @@ def admin_delete_customer(
     customer_id: str,
     _: dict[str, Any] = Depends(auth.require_admin),
 ) -> dict[str, str]:
-    customers = _load_customers()
-    if customer_id not in customers:
+    if not storage.customer_delete(customer_id):
         raise HTTPException(status_code=404, detail="Customer not found")
-    del customers[customer_id]
-    _save_customers(customers)
     # Also clean DynamoDB memory for this customer
     try:
         memory.reset(customer_id)
